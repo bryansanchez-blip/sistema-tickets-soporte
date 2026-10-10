@@ -62,3 +62,77 @@ Representa a la persona que interactúa con el sistema:
 
 ### Colaboración entre clases
 La clase `Ticket` posee una propiedad de tipo `Usuario` (agregación). Cuando se consulta o crea un ticket, la clase `Ticket` delega en `Usuario` la identificación de quién solicita el soporte y a qué departamento pertenece el incidente.
+
++----------------------------------+          +----------------------------------+
+|              Ticket              |          |             Usuario              |
++----------------------------------+          +----------------------------------+
+| - Id: int                        |          | - Id: int                        |
+| - Titulo: string                 |          | - NombreCompleto: string         |
+| - Descripcion: string            | 1      1 | - Correo: string                 |
+| - Estado: string                 |--------->| - Departamento: string           |
+| - Prioridad: string              |          +----------------------------------+
+| - FechaCreacion: DateTime        |
+| - Solicitante: Usuario           |
++----------------------------------+
+| + CambiarEstado(nuevoEstado)     |
++----------------------------------+
+
+
+---
+
+## 4. Reglas del negocio
+
+### Regla 1: Obligatoriedad de descripción mínima
+El campo descripción debe contener información suficiente para que el técnico entienda el problema antes de atenderlo.
+- **Entrada válida:** `"La impresora HP del área de contabilidad no enciende al presionar el botón de encendido."`
+- **Entrada inválida:** `"No sirve."` (menos de 10 caracteres).
+- **Respuesta del sistema:** El sistema bloquea el envío del formulario y muestra el mensaje de error: *"La descripción debe tener al menos 15 caracteres para registrar la solicitud."*
+
+### Regla 2: Formato de correo electrónico institucional
+El correo ingresado al registrar una solicitud debe pertenecer a la organización.
+- **Entrada válida:** `bryan.sanchez@empresa.com`
+- **Entrada inválida:** `bryan123@gmail.com`
+- **Respuesta del sistema:** El sistema resalta el campo de correo en rojo y muestra la alerta: *"Debe ingresar un correo corporativo válido con la extensión @empresa.com."*
+
+### Regla 3: Cierre de ticket requiere resolución
+Un ticket solo puede pasar al estado "Cerrado" si previamente ha sido marcado como "Resuelto" por el técnico.
+- **Entrada válida:** Transición de estado `"Resuelto"` a `"Cerrado"`.
+- **Entrada inválida:** Transición de estado `"En Proceso"` a `"Cerrado"` directamente.
+- **Respuesta del sistema:** El sistema deshabilita la opción "Cerrado" en la interfaz gráfica y, si se intenta forzar por lógica, arroja una excepción: *"No se puede cerrar un ticket que no ha sido marcado previamente como resuelto."*
+
+---
+
+## 5. Captura o boceto de interfaz
+
++-----------------------------------------------------------------------------------+
+|  MESA DE AYUDA - SISTEMA DE TICKETS                                               |
++-----------------------------------------------------------------------------------+
+|  [ + Nuevo Ticket ]     Filtrar por Estado: [ Todos    v ]  Buscar: [________]    |
++-----------------------------------------------------------------------------------+
+| ID       | Título                   | Solicitante      | Prioridad | Estado      |
++----------+--------------------------+------------------+-----------+-------------+
+| TCK-1001 | Falla en impresora HP    | Ana Montenegro   | Alta      | Abierto     |
+| TCK-1002 | Sin acceso a red local   | Carlos Ríos      | Media     | En Proceso  |
+| TCK-1003 | Error al abrir software  | Elena Gómez      | Baja      | Resuelto    |
++-----------------------------------------------------------------------------------+
+
+
+---
+
+## 6. Pregunta y próxima acción
+
+* **Duda para discutir con el docente:** 
+  ¿Es recomendable desde la primera versión en C# modelar los estados de los tickets utilizando un tipo enumerado (`enum`) o es preferible manejarlo como cadenas de texto (`string`) para facilitar la vinculación inicial con los componentes del formulario en Blazor?
+
+* **Paso concreto para comenzar la primera versión:**
+  Crear la solución en C# mediante la CLI de .NET (`dotnet new blazorserver`) y definir la clase del modelo `Ticket.cs` con sus propiedades básicas y la validación de la descripción mínima.
+
+---
+
+## 7. Organización del trabajo
+
+Al trabajar de manera individual, la distribución del tiempo para el desarrollo de la primera versión funcional se organizará en tres fases equilibradas:
+
+1. **Diseño del Modelo de Datos (35% del tiempo):** Construcción de las clases en C# (`Ticket`, `Usuario`), enums y la lógica de validación de las reglas de negocio.
+2. **Desarrollo de la Interfaz con Blazor (40% del tiempo):** Creación de los componentes de la vista en Blazor (`TicketList.razor`, `TicketForm.razor`) y enlazado de datos (*data binding*).
+3. **Pruebas y Refactorización (25% del tiempo):** Verificación manual de ingresos de datos válidos/inválidos, flujo de actualización de estados y revisión general del código.
